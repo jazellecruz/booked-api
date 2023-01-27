@@ -13,6 +13,6 @@ const connectDb = () => {
     if(err) throw err;
     console.log("Database connected...");
   });
-}
+};
 
-module.exports = { connectDb }
+module.exports = { connectDb, connection }
