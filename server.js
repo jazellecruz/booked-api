@@ -10,6 +10,8 @@ app.use(cors({
   method: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"]
 }));
 
+app.use(express.json());
+
 // connect to database
 connectDb();
 
@@ -23,8 +25,3 @@ app.get("/", (req, res) => {
 app.listen(8000, (req, res) => {
   console.log("Howdy from port 8000!");
 });
-
-/*
-Queries to remember:
- CURDATE() - insert current date only 
-*/
