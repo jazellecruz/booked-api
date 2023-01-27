@@ -1,8 +1,10 @@
 const router = require("express").Router();
+const { getCategories } = require("../controllers/books");
 
-//homepage of user
-router.get("/", (req, res) => {
-  res.send("Hello from the library route!");
+// route for getting books
+router.get("/", async(req, res) => {
+  let response = await getCategories();
+  res.send(response);
 });
 
 //view individual books from homepage
@@ -17,12 +19,12 @@ router.post("/", (req, res) => {
 
 // modify books
 router.patch("/:id", (req, res) => {
-  res.send("Hello from the library POST route!");
+  res.send("Hello from the library PATCH route!");
 });
 
 // delete a book
 router.delete("/:id", (req, res) => {
-  res.send("Hello from the library POST route!");
+  res.send("Hello from the library DELETE route!");
 })
 
 
