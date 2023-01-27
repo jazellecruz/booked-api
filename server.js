@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const { connectDb } = require("./src/db/db");
+const { connectDb }= require("./src/db/db");
 const library = require("./src/routes/library");
 
 app.use(cors({
@@ -13,6 +13,7 @@ app.use(cors({
 // connect to database
 connectDb();
 
+//routes 
 app.use("/library", library);
 
 app.get("/", (req, res) => {
@@ -22,3 +23,8 @@ app.get("/", (req, res) => {
 app.listen(8000, (req, res) => {
   console.log("Howdy from port 8000!");
 });
+
+/*
+Queries to remember:
+ CURDATE() - insert current date only 
+*/
