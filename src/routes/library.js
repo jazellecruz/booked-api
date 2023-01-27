@@ -1,31 +1,41 @@
 const router = require("express").Router();
-const { getCategories } = require("../controllers/books");
+const { getBooks, 
+        addBook,
+        deleteBook, 
+        modifyBook } = require("../controllers/books");
 
 // route for getting books
 router.get("/", async(req, res) => {
-  let response = await getCategories();
+  let response = await getBooks();
   res.send(response);
 });
 
-//view individual books from homepage
-router.get("/:id", (req, res) => {
-  res.send("This is the route for fetching a specific book.");
+// get a book by its id
+router.get("/id", async(req, res) => {
+
 });
 
-// add books
-router.post("/", (req, res) => {
-  res.send("Hello from the library POST route!");
+// add a book
+router.post("/", async(req, res) => {
+  let response = await addBook(req.body);
+  res.send(response);
 });
 
-// modify books
-router.patch("/:id", (req, res) => {
-  res.send("Hello from the library PATCH route!");
+// modify book by its id
+router.patch("/:id", async(req, res) => {
+  let response = await modifyBook(req.params.id, req.body);
+  res.send(response);
 });
 
-// delete a book
-router.delete("/:id", (req, res) => {
-  res.send("Hello from the library DELETE route!");
-})
+//delete a book by id
+router.delete("/:id", async(req, res) => {
+  let response = await deleteBook(req.params.id );
+  res.send(response);
+});
+
+//delete a book by query
 
 
 module.exports = router
+
+/* MULIPLE ROUTES FOR */
