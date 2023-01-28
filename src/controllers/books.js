@@ -4,9 +4,10 @@ const getBooks = async() => {
   let response;
   try{
     let results = await connection.promise().query(
-      `SELECT book_id, title, author, categories.category, status.status, dateAdded FROM books 
-       JOIN categories ON books.category_id = categories.category_id 
-       JOIN status ON books.status_id = status.status_id;`)
+      `SELECT books.book_id, title, author, description, categories.category, status.status, reviews.rating, reviews.comment, dateAdded FROM books
+       INNER JOIN categories ON books.category_id = categories.category_id
+       INNER JOIN reviews ON books.review_id = reviews.review_id
+       INNER JOIN status ON books.status_id = status.status_id;`)
     response = results[0]
   } catch(err) {
     throw err;
@@ -43,20 +44,19 @@ const deleteBook = async(id) => {
 const modifyBook = async(id, entry) => {
   let response;
   let field = Object.keys(entry)[0];
-
+  // the line below checks if argument is a string or a number
+  // if arg is number return it as is, if string return it as string
+  // this avoids data type error when updating fields in db
+  let newEntry = typeof entry[field] === "number" ?  entry[field] : "'" + entry[field] + "'";
   try{
     let results = await connection.promise().query(
-      // this complicated AF code checks if the input is a number or not
-      // if it is a number, return it as is to insert it as a number in the table
-      // if it is a string add "" to let the db know that ii is a string
-      `UPDATE books SET ${field} = 
-      ${typeof entry[field] === "number" ?  entry[field] : "'" + entry[field] + "'"}
-      WHERE book_id="${id}";`)
+    `UPDATE books SET ${field} = ${newEntry} WHERE book_id="${id}";`)
     response = results[0]
   } catch(err) {
     throw err;
   }
   return response
 }
+
 
 module.exports = { getBooks, addBook, deleteBook, modifyBook };
