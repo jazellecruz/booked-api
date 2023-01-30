@@ -10,7 +10,7 @@ router.get("/:id", async(req, res) => {
 
 // add a custom category
 router.post("/", async(req, res) => {
-  let response = await addCategory(req.body);
+  let response = await addCategory(req.body.category);
   res.send(response);
 })
 
