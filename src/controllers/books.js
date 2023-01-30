@@ -5,9 +5,9 @@ const getBooks = async() => {
   try{
     let results = await connection.promise().query(
       `SELECT books.book_id, title, author, description, categories.category, status.status, reviews.rating, reviews.comment, dateAdded FROM books
-       INNER JOIN categories ON books.category_id = categories.category_id
-       INNER JOIN reviews ON books.review_id = reviews.review_id
-       INNER JOIN status ON books.status_id = status.status_id;`)
+       left JOIN categories ON books.category_id = categories.category_id
+       left JOIN reviews ON books.review_id = reviews.review_id
+       left JOIN status ON books.status_id = status.status_id;`)
     response = results[0]
   } catch(err) {
     throw err;
@@ -17,11 +17,17 @@ const getBooks = async() => {
 
 const addBook = async(book) => {
   let response;
-  let { title, author, category_id, status_id } = book
+  let { title, author, description, category_id, status_id, review_id } = book
   try{
     let results = await connection.promise().query(
-      `INSERT INTO books (title, author, category_id, status_id, dateAdded) 
-      VALUES ("${title}", "${author}", ${category_id}, ${status_id}, curdate());`)
+      `INSERT INTO books (title, author, description, category_id, status_id, review_id, dateAdded) 
+       VALUES ("${title}", 
+              ${author ? `"${author}"` : null }, 
+              ${description ? `"${description}"` : null }, 
+              ${category_id}, 
+              ${status_id}, 
+              ${review_id ? review_id : null}, 
+              curdate());`)
     response = results[0]
   } catch(err) {
     throw err;
