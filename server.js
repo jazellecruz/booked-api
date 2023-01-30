@@ -5,6 +5,7 @@ const cors = require("cors");
 const { connectDb }= require("./src/db/db");
 const library = require("./src/routes/library");
 const categories = require("./src/routes/categories");
+const reviews = require("./src/routes/reviews");
 
 app.use(cors({
   origin: "http://localhost:3000",
@@ -22,6 +23,9 @@ app.use("/library", library);
 
 //the categories route
 app.use("/library/category/", categories);
+
+// the reviews route
+app.use("/library/reviews", reviews);
 
 app.get("/", (req, res) => {
   res.send("Booked main route.");
