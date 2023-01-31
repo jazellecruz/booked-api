@@ -6,7 +6,7 @@ const addReview = async(review) => {
   try{
     let result = await connection.promise().query(
       `START TRANSACTION;
-       INSERT INTO reviews (book_id, rating, comment) 
+       INSERT INTO reviews (book_id, rating, comment)
        VALUES (${book_id}, ${rating}, '${comment}');
        SET @last_review_id = LAST_INSERT_ID();
        UPDATE books SET review_id = @last_review_id WHERE book_id = ${book_id};
@@ -47,13 +47,23 @@ const deleteReview = async(id) => {
   let response;
 
   try{
-
+    let result = await connection.promise().query(
+      `START TRANSACTION; 
+       SET FOREIGN_KEY_CHECKS=0;
+       DELETE FROM reviews WHERE review_id = "${id}";
+       UPDATE books SET review_id = NULL WHERE review_id = "${id}";
+       SET FOREIGN_KEY_CHECKS=1;
+       COMMIT;`);
+       // the query above is executed a bit slow 
+       // need to change the query in the future
+    response = result[0];
   } catch(err){
-
+    throw err;
   }
 
   return response;
 }
+
 
 module.exports = { addReview, modifyReview, deleteReview }
 
