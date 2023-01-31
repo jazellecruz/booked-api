@@ -13,4 +13,10 @@ router.patch("/:review_id", async(req, res) => {
   res.send(response)
 });
 
+router.delete("/:review_id", async(req, res) => {
+  let response = await deleteReview(req.params.review_id);
+  res.send(response)
+});
+
+
 module.exports = router
