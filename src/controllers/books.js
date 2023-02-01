@@ -7,7 +7,8 @@ const getBooks = async() => {
       `SELECT books.book_id, title, author, description, categories.category, status.status, reviews.rating, reviews.comment, dateAdded FROM books
        left JOIN categories ON books.category_id = categories.category_id
        left JOIN reviews ON books.review_id = reviews.review_id
-       left JOIN status ON books.status_id = status.status_id;`)
+       left JOIN status ON books.status_id = status.status_id
+       ORDER BY dateAdded DESC;`)
     response = results[0]
   } catch(err) {
     throw err;
