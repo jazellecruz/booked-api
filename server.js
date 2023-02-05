@@ -31,6 +31,10 @@ app.get("/", (req, res) => {
   res.send("Booked main route.");
 });
 
-app.listen(8000, (req, res) => {
+app.post("/test", (req, res) => {
+  console.log(req.body)
+})
+
+app.listen(8000, () => {
   console.log("Howdy from port 8000!");
 });
