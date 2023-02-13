@@ -22,7 +22,7 @@ connectDb();
 app.use("/library", library);
 
 //the categories route
-app.use("/library/category/", categories);
+app.use("/library/categories/", categories);
 
 // the reviews route
 app.use("/library/reviews", reviews);
