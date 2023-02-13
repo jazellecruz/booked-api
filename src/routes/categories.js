@@ -1,7 +1,13 @@
 const router = require("express").Router();
-const { getBooksByCategory,
+const { getCategories,
+        getBooksByCategory,
         addCategory } = require("../controllers/categories");
 
+// get  list of categories 
+router.get("/", async(req, res) => {
+  let response = await getCategories();
+  res.send(response);
+});
 // get books by category
 router.get("/:id", async(req, res) => {
   let response = await getBooksByCategory(req.params.id);
