@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const { connectDb }= require("./src/db/db");
-const library = require("./src/routes/library");
+const books = require("./src/routes/books");
 const categories = require("./src/routes/categories");
 const reviews = require("./src/routes/reviews");
 
@@ -19,7 +19,7 @@ connectDb();
 
 //routes 
 // for the main homepage of user
-app.use("/library", library);
+app.use("/library/books", books);
 
 //the categories route
 app.use("/library/categories/", categories);
