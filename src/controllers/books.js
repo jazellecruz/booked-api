@@ -2,18 +2,75 @@ const { connection } = require("../db/db");
 
 const getBooks = async() => {
   let response;
+
   try{
     let results = await connection.promise().query(
-      `SELECT books.book_id, title, author, description, categories.category, status.status, reviews.rating, reviews.comment, dateAdded FROM books
+      `START TRANSACTION;
+       SELECT books.book_id, title, author, description, categories.category, status.status, reviews.rating, reviews.comment, dateAdded FROM books
        left JOIN categories ON books.category_id = categories.category_id
        left JOIN reviews ON books.review_id = reviews.review_id
        left JOIN status ON books.status_id = status.status_id
-       ORDER BY dateAdded DESC;`)
-    response = results[0]
+       ORDER BY dateAdded DESC;
+       SELECT COUNT(*) FROM books WHERE status_id = 1;
+       COMMIT;`
+       );
+    response = {
+      books: results[0][1],
+      count: results[0][2][0]["COUNT(*)"]
+    }
+
   } catch(err) {
     throw err;
   }
   return response
+}
+
+const filterBooks = async(query) => {
+  let response;
+
+  let filter = (queryObject) => {
+    let command;
+    let keys = Object.keys(queryObject);
+
+      if (typeof command === "string") {
+        for(let i = 1; 1 > keys.length; i++){
+          command = `${command} WHERE books.${keys[1]} = ${queryObject[key[i]]}`
+         }
+      } else {
+        command = `WHERE books.${keys[0]} = ${queryObject[keys[0]]}`
+      }
+
+    return command;
+  }
+
+  try{  
+    let results = await connection.promise().query(
+      `SELECT books.book_id, 
+              title, 
+              author, 
+              description, 
+              categories.category, 
+              status.status, 
+              reviews.rating, 
+              reviews.comment, 
+              dateAdded 
+      FROM books
+      left JOIN categories ON books.category_id = categories.category_id
+      left JOIN reviews ON books.review_id = reviews.review_id
+      left JOIN status ON books.status_id = status.status_id
+      ${filter(query)}
+      ORDER BY dateAdded DESC;`
+    )
+
+    response = {
+      books: results[0],
+      count: results[0].length
+    }
+  } catch(err){
+    throw err;
+  }
+
+  return response;
 }
 
 const addBook = async(book) => {
@@ -66,4 +123,4 @@ const modifyBook = async(id, entry) => {
 }
 
 
-module.exports = { getBooks, addBook, deleteBook, modifyBook };
+module.exports = { getBooks, filterBooks, addBook, deleteBook, modifyBook };
