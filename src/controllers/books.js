@@ -16,7 +16,7 @@ const getBooks = async() => {
        );
     response = {
       books: results[0][1],
-      count: results[0][2][0]["COUNT(*)"]
+      totalOfFinishedBooks: results[0][2][0]["COUNT(*)"]
     }
 
   } catch(err) {
@@ -34,7 +34,7 @@ const filterBooks = async(query) => {
 
       if (typeof command === "string") {
         for(let i = 1; 1 > keys.length; i++){
-          command = `${command} WHERE books.${keys[1]} = ${queryObject[key[i]]}`
+          command = `${command} WHERE books.${keys[1]} = ${queryObject[keys[i]]}`
          }
       } else {
         command = `WHERE books.${keys[0]} = ${queryObject[keys[0]]}`
