@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const { getBooks,
         filterBooks,
-        getBooksByCategory, 
         addBook,
         deleteBook, 
         modifyBook } = require("../controllers/books");
@@ -9,7 +8,7 @@ const { getBooks,
 // route for getting books
 router.get("/", async(req, res, next) => {
   let response;
-  if(req.query) {
+  if(Object.keys(req.query).length !== 0) { 
     next();
   } else {
   response = await getBooks();
@@ -26,12 +25,6 @@ router.get("/", async(req, res) => {
 // get a book by its id
 router.get("/:id", async(req, res) => {
 
-});
-
-// filter books by category
-router.get("/", async(req, res) => {
-  let response = await getBooksByCategory(req.query["category_id"]);
-  res.send(response);
 });
 
 // add a book
