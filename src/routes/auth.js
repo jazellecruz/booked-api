@@ -4,11 +4,11 @@ const bcrypt = require("bcrypt");
 const { generateAccessToken, generateRefreshToken } = require("../utils/utils")
 
 router.post("/login", async(req, res) => {
-  const {username, email, password} = req.body;
+  const {username, password} = req.body;
 
   try{
     let results = await connection.promise().query(
-      `SELECT password FROM users WHERE username = "${username}" AND email = "${email}";`
+      `SELECT password FROM users WHERE username = "${username}";`
     )
 
     if(results[0].length === 0){
@@ -18,7 +18,10 @@ router.post("/login", async(req, res) => {
       if(match) {
         let accessToken = await generateAccessToken({username: username, email: email})
         let refreshToken = await generateRefreshToken({username: username, email: email})
-        res.status(200).send({accessToken: accessToken, refreshToken: refreshToken})
+        res.status(200).send({
+          username: username,
+          accessToken: accessToken,
+          refreshToken: refreshToken})
       } else {
         res.status(401).send("Access denied.")
       }
