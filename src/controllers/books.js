@@ -111,7 +111,8 @@ const modifyBook = async(id, entry) => {
   // the line below checks if argument is a string or a number
   // if arg is number return it as is, if string return it as string
   // this avoids data type error when updating fields in db
-  let newEntry = typeof entry[field] === "number" ?  entry[field] : "'" + entry[field] + "'";
+  let newEntry = typeof entry[field] === "number" ?  entry[field] : `"${entry[field].toString()}"`
+  console.log(entry[field].toString())
   try{
     let results = await connection.promise().query(
     `UPDATE books SET ${field} = ${newEntry} WHERE book_id="${id}";`)

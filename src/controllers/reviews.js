@@ -29,7 +29,7 @@ const modifyReview = async(id, review) => {
   // the line below checks if argument is a string or a number
   // if arg is number return it as is, if string return it as string
   // this avoids data type error when updating fields in db
-  let newEntry = typeof review[field] === "number" ?  review[field] : "'" + review[field] + "'";
+  let newEntry = typeof review[field] === "number" ?  review[field] : `"${review[field].toString()}"`;
 
   try{
     let result = await connection.promise().query(
