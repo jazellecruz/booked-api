@@ -1,6 +1,7 @@
 const router = require("express").Router();
-const { connection } = require("../db/db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { connection } = require("../db/db");
 const { generateAccessToken, generateRefreshToken } = require("../utils/utils")
 
 router.post("/login", async(req, res) => {
@@ -16,12 +17,13 @@ router.post("/login", async(req, res) => {
     } else {
       let match = await bcrypt.compare(password, results[0][0].password)
       if(match) {
-        let accessToken = await generateAccessToken({username: username, email: email})
-        let refreshToken = await generateRefreshToken({username: username, email: email})
+        let accessToken = generateAccessToken({username: username})
+        let refreshToken = generateRefreshToken({username: username})
         res.status(200).send({
           username: username,
           accessToken: accessToken,
           refreshToken: refreshToken})
+        console.log("Hello from login route")
       } else {
         res.status(401).send("Access denied.")
       }
@@ -29,6 +31,25 @@ router.post("/login", async(req, res) => {
 
   } catch(err) {
     console.log(err)
+  }
+
+});
+
+router.post("/verify", (req, res) => {
+  let token = req.headers["x-access-token"]
+
+  if(!token) {
+    res.status(401).send("No token sent")
+  } else {
+    jwt.verify(token, process.env.ACCESS_KEY_SECRET, (err, response) => {
+      if(response) {
+        console.log("hello from verify token")
+        res.status(200).send("Token Verified");
+        
+      } else {
+        res.status(401).send("Token Denied")
+      }
+    });
   }
 
 });
