@@ -5,14 +5,14 @@ const generateAccessToken = ({username}) => {
     username: username
   }
 
-  let accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2d' });
+  let accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
   
   return accessToken
 }
 
 const generateRefreshToken = ({username}) => {
   const user = {
-    username: username,
+    username: username
   }
 
   let refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
