@@ -41,12 +41,14 @@ router.post("/verify", (req, res) => {
   if(!token) {
     res.status(401).send("No token sent")
   } else {
-    jwt.verify(token, process.env.ACCESS_KEY_SECRET, (err, response) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, response) => {
       if(response) {
-        console.log("hello from verify token")
         res.status(200).send("Token Verified");
-        
+      } else if (err.name === "JsonWebTokenError") {
+        console.log(err);
+        res.status(500).send("Error in server")
       } else {
+        console.log(err)
         res.status(401).send("Token Denied")
       }
     });
