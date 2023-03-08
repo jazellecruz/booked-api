@@ -8,11 +8,20 @@ const isUserAuthenticated = (req, res, next) => {
       let decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
       next();
     } catch(err) {
-      res.send(err);
+      if (err.name === "TokenExpiredError") {
+        res.status(401).send("Token Expired");
+      } else if (err.name === "JsonWebTokenError") {
+        if(err.message === "secret or public key must be provided") {
+          res.status(500).send("Error in Server")
+        } else {
+          res.status(401).send("Invalid Token")
+        }
+      } else {
+        res.status(401).send("Token Denied")
+      }
     }
-  
   } else {
-    res.status(401).send("Access Denied");
+    res.status(401).send("No Token Received")
   }
 }
 
