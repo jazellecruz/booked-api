@@ -38,13 +38,9 @@ app.use("/auth", auth);
 app.post("/test", (req, res) => {
   if (req.body) {
     console.log(req.body)
-    return res.status(200).send({
-      message: 'Successfully saved!'
-   });
+    res.status(200).send('Successfully saved!');
   } else {
-    return res.status(400).send({
-      message: 'This is an error!'
-   });
+    res.status(500).send('Internal Server Error');
   }
 })
 
