@@ -29,8 +29,8 @@ router.get("/:id", async(req, res) => {
 
 // add a book
 router.post("/", async(req, res) => {
-  let response = await addBook(req.body);
-  res.send(response);
+  console.log(req.body)
+  addBook(req.body, res);
 });
 
 // modify book by its id
