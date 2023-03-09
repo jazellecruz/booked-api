@@ -4,7 +4,7 @@ const getCategories = async() => {
   let response;
 
   try{
-    let results = await connection.promise().query("SELECT * FROM categories")
+    let results = await connection.promise().query("SELECT * FROM categories ORDER BY category")
     response = results[0]
   } catch(err) {
     throw err;
