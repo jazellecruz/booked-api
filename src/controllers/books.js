@@ -20,7 +20,7 @@ const getBooks = async() => {
     }
 
   } catch(err) {
-    throw err;
+    response = err
   }
   return response
 }
@@ -73,9 +73,10 @@ const filterBooks = async(query) => {
   return response;
 }
 
-const addBook = async(book) => {
+const addBook = async(book, res) => {
   let response;
   let { title, author, description, category_id, status_id, review_id } = book
+
   try{
     let results = await connection.promise().query(
       `INSERT INTO books (title, author, description, category_id, status_id, review_id, dateAdded) 
@@ -86,11 +87,18 @@ const addBook = async(book) => {
               ${status_id}, 
               ${review_id ? review_id : null}, 
               curdate());`)
-    response = results[0]
+    
+    if (results[0].affectedRows === 1) {
+      res.status(200).send("Success");
+    } else {
+
+      res.status(202).send("Acknowledge but not Proccessed")
+    }
+    // response = results[0]
   } catch(err) {
-    throw err;
+    res.send(err);
   }
-  return response
+  // return response
 }
 
 const deleteBook = async(id) => {
