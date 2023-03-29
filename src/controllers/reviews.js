@@ -1,13 +1,13 @@
 const { connection } = require("../db/db");
 
-const addReview = async(review) => {
-  let response;
+const addReview = async(review, res) => {
   let { book_id, rating, comment } = review
+  
   try{
     let result = await connection.promise().query(
       `START TRANSACTION;
        INSERT INTO reviews (book_id, rating, comment)
-       VALUES (${book_id}, ${rating}, '${comment}');
+       VALUES (${book_id}, ${rating}, "${comment}");
        SET @last_review_id = LAST_INSERT_ID();
        UPDATE books SET review_id = @last_review_id WHERE book_id = ${book_id};
        COMMIT;`
@@ -15,36 +15,42 @@ const addReview = async(review) => {
       ensure that the insert, set and update operations are done 
       atomically as a single transaction. - ChatGPT*/
     );
-    response = result[0]
+    res.status(200).send(result[0])
   } catch(err){
-    throw err;
+    if(err.errno === 1452) {
+      res.status(404).send("Request failed. 0 resource matched.");
+      console.log(err);
+    } else {
+      res.status(500).send("Internal Server Error");
+      console.log(err);
+    }
   }
 
-  return response;
 }
 
-const modifyReview = async(id, review) => {
-  let response;
+const modifyReview = async(id, review, res) => {
   let field = Object.keys(review)[0];
-  // the line below checks if argument is a string or a number
-  // if arg is number return it as is, if string return it as string
-  // this avoids data type error when updating fields in db
+
+  /* converts entry to string if not a number to avoid data type 
+   error when updating fields in db */
   let newEntry = typeof review[field] === "number" ?  review[field] : `"${review[field].toString()}"`;
 
   try{
     let result = await connection.promise().query(
       `UPDATE reviews SET ${field} = ${newEntry} WHERE review_id="${id}";`
     )
-    response = result;
+    if(result[0].affectedRows) {
+      res.status(200).send("Successfully modified item.")
+    } else {
+      res.status(404).send("No item modified. 0 resource matched.")
+    }
   } catch(err){
-    throw err
+    res.status(500).send("Internal Server Error");
+    console.log(err);
   }
-
-  return response;
 }
 
-const deleteReview = async(id) => {
-  let response;
+const deleteReview = async(id, res) => {
 
   try{
     let result = await connection.promise().query(
@@ -54,14 +60,13 @@ const deleteReview = async(id) => {
        UPDATE books SET review_id = NULL WHERE review_id = "${id}";
        SET FOREIGN_KEY_CHECKS=1;
        COMMIT;`);
-       // the query above is executed a bit slow 
-       // need to change the query in the future
-    response = result[0];
+
+    res.send(result)
   } catch(err){
-    throw err;
+    res.status(500).send("Internal Server Error");
+    console.log(err);
   }
 
-  return response;
 }
 
 
