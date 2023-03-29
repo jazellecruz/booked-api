@@ -3,19 +3,16 @@ const { addReview,
         modifyReview,
         deleteReview } = require("../controllers/reviews");
 
-router.post("/", async(req, res) => {
-  let response = await addReview(req.body);
-  res.send(response)
+router.post("/", (req, res) => {
+  addReview(req.body, res);
 });
 
 router.patch("/:review_id", async(req, res) => {
-  let response = await modifyReview(req.params.review_id, req.body);
-  res.send(response)
+  modifyReview(req.params.review_id, req.body, res);
 });
 
-router.delete("/:review_id", async(req, res) => {
-  let response = await deleteReview(req.params.review_id);
-  res.send(response)
+router.delete("/:review_id", (req, res) => {
+  deleteReview(req.params.review_id, res);
 });
 
 

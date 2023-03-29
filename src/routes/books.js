@@ -6,43 +6,37 @@ const { getBooks,
         modifyBook } = require("../controllers/books");
 
 // route for getting books
-router.get("/", async(req, res, next) => {
-  let response;
+router.get("/", (req, res, next) => {
   if(Object.keys(req.query).length !== 0) { 
     next();
   } else {
-  response = await getBooks();
-  res.send(response)
+    getBooks(res);
   }
 });
 
 //route to filter books
-router.get("/", async(req, res) => {
-  let response = await filterBooks(req.query)
-  res.send(response)
+router.get("/", (req, res) => {
+  filterBooks(req.query, res)
 });
 
 // get a book by its id
-router.get("/:id", async(req, res) => {
+router.get("/:id", (req, res) => {
 
 });
 
 // add a book
-router.post("/", async(req, res) => {
-  console.log(req.body)
+router.post("/", (req, res) => {
   addBook(req.body, res);
 });
 
 // modify book by its id
-router.patch("/:id", async(req, res) => {
-  let response = await modifyBook(req.params.id, req.body);
-  res.send(response);
+router.patch("/:id", (req, res) => {
+  modifyBook(req.params.id, req.body, res);
 });
 
 //delete a book by id
-router.delete("/:id", async(req, res) => {
-  let response = await deleteBook(req.params.id );
-  res.send(response);
+router.delete("/:id", (req, res) => {
+  deleteBook(req.params.id, res);
 });
 
 //delete a book by query
