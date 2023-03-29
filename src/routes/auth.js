@@ -23,7 +23,6 @@ router.post("/login", async(req, res) => {
           username: username,
           accessToken: accessToken,
           refreshToken: refreshToken})
-        console.log("Hello from login route")
       } else {
         res.status(401).send("Access denied.")
       }
