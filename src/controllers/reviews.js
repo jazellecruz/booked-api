@@ -11,10 +11,8 @@ const addReview = async(review, res) => {
        SET @last_review_id = LAST_INSERT_ID();
        UPDATE books SET review_id = @last_review_id WHERE book_id = ${book_id};
        COMMIT;`
-      /*The START TRANSACTION and COMMIT statements are used to 
-      ensure that the insert, set and update operations are done 
-      atomically as a single transaction. - ChatGPT*/
     );
+    
     res.status(200).send(result[0])
   } catch(err){
     if(err.errno === 1452) {
