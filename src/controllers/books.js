@@ -27,23 +27,31 @@ const getBooks = async(res) => {
     res.status(500).send("Internal Server Error")
     console.log(err);
   }
+  
 }
 
 const filterBooks = async(query, res) => {
 
-  let filter = (queryObject) => {
-    let command;
-    let keys = Object.keys(queryObject);
+  let filter = (filterCriteria) => {
+    let bookFilter = [];
+    let filterKeys = Object.keys(filterCriteria);
 
-      if (typeof command === "string") {
-        for(let i = 1; 1 > keys.length; i++){
-          command = `${command} WHERE books.${keys[1]} = ${queryObject[keys[i]]}`
-         }
-      } else {
-        command = `WHERE books.${keys[0]} = ${queryObject[keys[0]]}`
-      }
+    /* 
+    NOTES:
+      1. Check if query is >1. if true, assign the string "books.<key> = <value>" to the bookFilter variable
+      2. If false, iterate filterKeys array and push the string containing the key value pairs.
+      3. Once loop is done, join the items in the bookFilter array with "AND" to result to a string.
+    */
+    if (filterKeys.length === 1) {
+      bookFilter = `books.${filterKeys[0]} = ${filterCriteria[filterKeys[0]]}`;
+    } else {
+      for(let i = 0; i < filterKeys.length; i++) {
+        bookFilter.push(`books.${filterKeys[i]} = ${filterCriteria[filterKeys[i]]}`)
+      };
+      bookFilter = bookFilter.join(" AND ");
+    }
 
-    return command;
+    return bookFilter;
   }
 
   try{  
@@ -62,7 +70,7 @@ const filterBooks = async(query, res) => {
       left JOIN categories ON books.category_id = categories.category_id
       left JOIN reviews ON books.review_id = reviews.review_id
       left JOIN status ON books.status_id = status.status_id
-      ${filter(query)}
+      WHERE ${filter(query)}
       ORDER BY dateAdded DESC;`
     )
     
@@ -122,8 +130,7 @@ const addBook = async(entry, res) => {
     res.status(500).send("Internal Server Error")
     console.log(err)
   }
-
-  // use output to return the newly inserted row and send to client to avoid another api call
+l
 }
 
 const deleteBook = async(id, res) => {
@@ -137,10 +144,6 @@ const deleteBook = async(id, res) => {
        SET FOREIGN_KEY_CHECKS=1;
        COMMIT;`)
     
-       //maybe try a query that will delete a parent row then delete its child row from a child table 
-
-      // you can use !== 0 if there will be multiple rows affected
-      console.log(results[0])
     if (results[0][3].affectedRows && results[0][4].affectedRows) {
       res.status(200).send("Item deleted successfully");
     } else {
