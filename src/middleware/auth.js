@@ -1,18 +1,18 @@
 const jwt = require("jsonwebtoken");
 
-const isUserAuthenticated = (req, res, next) => {
+const isUserAuthenticated = async(req, res, next) => {
   let token = req.headers["x-access-token"]
 
   if(token) {
     try{
-      let decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+      let decode = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
       next();
     } catch(err) {
       if (err.name === "TokenExpiredError") {
         res.status(401).send("Token Expired");
       } else if (err.name === "JsonWebTokenError") {
         if(err.message === "secret or public key must be provided") {
-          res.status(500).send("Error in Server")
+          res.status(500).send("Internal Server Error")
         } else {
           res.status(401).send("Invalid Token")
         }

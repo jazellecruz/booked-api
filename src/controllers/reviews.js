@@ -6,7 +6,7 @@ const addReview = async(review, res) => {
   try{
     let result = await connection.promise().query(
       `START TRANSACTION;
-       INSERT INTO reviews (book_id, rating, comment)
+       INSERT INTO reviews (book_id, rating, review)
        VALUES (${book_id}, ${rating}, "${comment}");
        SET @last_review_id = LAST_INSERT_ID();
        UPDATE books SET review_id = @last_review_id WHERE book_id = ${book_id};
