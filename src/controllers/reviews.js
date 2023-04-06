@@ -1,70 +1,79 @@
 const { connection } = require("../db/db");
+const {formatFields} = require("../helpers/helpers");
 
-const addReview = async(review, res) => {
-  let { book_id, rating, comment } = review
+const addReview = async(bookReview, res) => {
+  let { book_id, rating, review } = bookReview
   
   try{
     let result = await connection.promise().query(
       `START TRANSACTION;
        INSERT INTO reviews (book_id, rating, review)
-       VALUES (${book_id}, ${rating}, "${comment}");
+       VALUES (${book_id}, ${rating}, "${review}");
        SET @last_review_id = LAST_INSERT_ID();
        UPDATE books SET review_id = @last_review_id WHERE book_id = ${book_id};
        COMMIT;`
     );
     
-    res.status(200).send(result[0])
-  } catch(err){
-    if(err.errno === 1452) {
-      res.status(404).send("Request failed. 0 resource matched.");
-      console.log(err);
+    if(!result[0][1].affectedRows && !result[0][3].affectedRows) {
+      res.status(202).send("Request acknowledged but not processed.");
     } else {
-      res.status(500).send("Internal Server Error");
-      console.log(err);
+      res.status(200).send("Successfully added resource!")
+    }
+  }catch(err) {
+    if (err.errno === 1452){
+      res.status(422).send("Failed to process. Foreign key constraint violation.");
+    } else {
+      res.sendStatus(500);
+      console.log(err)
     }
   }
 
 }
 
-const modifyReview = async(id, review, res) => {
-  let field = Object.keys(review)[0];
-
-  /* converts entry to string if not a number to avoid data type 
-   error when updating fields in db */
-  let newEntry = typeof review[field] === "number" ?  review[field] : `"${review[field].toString()}"`;
+const modifyReview = async(reviewId, fieldsToModify, res) => {
 
   try{
     let result = await connection.promise().query(
-      `UPDATE reviews SET ${field} = ${newEntry} WHERE review_id="${id}";`
-    )
-    if(result[0].affectedRows) {
-      res.status(200).send("Successfully modified item.")
-    } else {
+      `UPDATE reviews SET ${formatFields("reviews", fieldsToModify, " , ")} WHERE review_id="${reviewId}";`
+    );
+
+    if(!result[0].affectedRows) {
       res.status(404).send("No item modified. 0 resource matched.")
+    } else {
+      res.status(200).send("Successfully modified item.")
     }
-  } catch(err){
-    res.status(500).send("Internal Server Error");
-    console.log(err);
+
+  }catch(err) {
+    res.sendStatus(500);
+    console.log(err)    
   }
 }
 
-const deleteReview = async(id, res) => {
+const deleteReview = async(reviewId, res) => {
 
   try{
     let result = await connection.promise().query(
       `START TRANSACTION; 
        SET FOREIGN_KEY_CHECKS=0;
-       DELETE FROM reviews WHERE review_id = "${id}";
-       UPDATE books SET review_id = NULL WHERE review_id = "${id}";
+       DELETE FROM reviews WHERE review_id = "${reviewId}";
+       UPDATE books SET review_id = NULL WHERE review_id = "${reviewId}";
        SET FOREIGN_KEY_CHECKS=1;
        COMMIT;`);
 
-    res.send(result)
-  } catch(err){
-    res.status(500).send("Internal Server Error");
-    console.log(err);
-  }
+    if(!result[0][2].affectedRows && !result[0][3].affectedRows){
+      res.status(404).send("No item deleted. 0 resources matched.");
+    } else {
+      res.status(200).send("Successfully deleted resource!")
+    }
 
+  } catch(err){
+    if (err.errno === 1452){
+      res.status(422).send("Failed to process. Foreign key constraint violation.");
+    } else {
+      res.sendStatus(500);
+      console.log(err)
+    }
+  }
 }
 
 

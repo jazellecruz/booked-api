@@ -1,4 +1,5 @@
 const { connection } = require("../db/db");
+const {formatFields} = require("../helpers/helpers")
 
 const getBooks = async(res) => {
 
@@ -14,7 +15,7 @@ const getBooks = async(res) => {
        COMMIT;`
        );
       
-      if(results[0].length === 0) {
+      if(!results[0].length) {
         res.status(404).send("No resources found.");
       } else {
         res.status(200).send({
@@ -24,35 +25,13 @@ const getBooks = async(res) => {
       }
 
   } catch(err) {
-    res.status(500).send("Internal Server Error")
+    res.sendStatus(500);
     console.log(err);
   }
   
 }
 
 const filterBooks = async(query, res) => {
-
-  let filter = (filterCriteria) => {
-    let bookFilter = [];
-    let filterKeys = Object.keys(filterCriteria);
-
-    /* 
-    NOTES:
-      1. Check if query is >1. if true, assign the string "books.<key> = <value>" to the bookFilter variable
-      2. If false, iterate filterKeys array and push the string containing the key value pairs.
-      3. Once loop is done, join the items in the bookFilter array with "AND" to result to a string.
-    */
-    if (filterKeys.length === 1) {
-      bookFilter = `books.${filterKeys[0]} = ${filterCriteria[filterKeys[0]]}`;
-    } else {
-      for(let i = 0; i < filterKeys.length; i++) {
-        bookFilter.push(`books.${filterKeys[i]} = ${filterCriteria[filterKeys[i]]}`)
-      };
-      bookFilter = bookFilter.join(" AND ");
-    }
-
-    return bookFilter;
-  }
 
   try{  
     let results = await connection.promise().query(
@@ -70,11 +49,11 @@ const filterBooks = async(query, res) => {
       left JOIN categories ON books.category_id = categories.category_id
       left JOIN reviews ON books.review_id = reviews.review_id
       left JOIN status ON books.status_id = status.status_id
-      WHERE ${filter(query)}
+      WHERE ${formatFields("books", query, " AND ")}
       ORDER BY dateAdded DESC;`
     )
     
-    if(results[0].length === 0) {
+    if(!results[0].length) {
       res.status(404).send("No resources found.");
     } else {
       res.status(200).send({
@@ -84,14 +63,35 @@ const filterBooks = async(query, res) => {
     }
 
   } catch(err){
-    res.status(500).send("Internal Server Error")
+    res.sendStatus(500);
     console.log(err)
   }
 
 }
 
-const addBook = async(entry, res) => {
-  let { title, author, description, category_id, status_id, img, rating, review } = entry
+const getBookById = async(bookId, res) => {
+  try{
+    let results = await connection.promise().query(
+      `SELECT books.book_id, title, author, description, img, categories.category, status.status, reviews.rating, reviews.review, dateAdded FROM books
+       left JOIN categories ON books.category_id = categories.category_id
+       left JOIN reviews ON books.review_id = reviews.review_id
+       left JOIN status ON books.status_id = status.status_id
+       WHERE books.book_id = ${bookId};`);
+      
+       if(!results[0].length) {
+        res.status(404).send("No resources found.")
+       } else {
+        res.status(200).send(results[0]);
+       }
+
+  } catch(err) {
+    res.sendStatus(500);
+    console.log(err)
+  }
+}
+
+const addBook = async(newBook, res) => {
+  let { title, author, description, category_id, status_id, img, rating, review } = newBook
 
   try{
     let results = await connection.promise().query(
@@ -120,63 +120,63 @@ const addBook = async(entry, res) => {
        WHERE books.book_id = @last_book_id;
        COMMIT;`);
     
-    if (results[0][1].affectedRows && results[0][3].affectedRows && results[0][5].affectedRows) {
-      res.status(200).send(results[0][6][0]);
-    } else {
+    if (!results[0][1].affectedRows && !results[0][3].affectedRows && !results[0][5].affectedRows) {
       res.status(202).send("Request acknowledged but not processed.");
+    } else {
+      res.status(200).send(results[0][6][0]);
     }
 
   } catch(err) {
-    res.status(500).send("Internal Server Error")
+    res.sendStatus(500);
     console.log(err)
   }
-l
+
 }
 
-const deleteBook = async(id, res) => {
+const deleteBook = async(bookId, res) => {
   try{
     let results = await connection.promise().query(
       `START TRANSACTION;
        SET FOREIGN_KEY_CHECKS=0;
-       SET @review_id = (SELECT review_id FROM books WHERE book_id = "${id}");
+       SET @review_id = (SELECT review_id FROM books WHERE book_id = "${bookId}");
        DELETE FROM reviews WHERE review_id = @review_id;
-       DELETE FROM books WHERE books.book_id = ${id};
+       DELETE FROM books WHERE books.book_id = ${bookId};
        SET FOREIGN_KEY_CHECKS=1;
        COMMIT;`)
     
-    if (results[0][3].affectedRows && results[0][4].affectedRows) {
-      res.status(200).send("Item deleted successfully");
+    if (!results[0][3].affectedRows && !results[0][4].affectedRows) {
+      res.status(404).send("Request failed. 0 resource matched.");
     } else {
-      res.status(404).send("No item deleted. 0 resources matched.");
+      res.status(200).send("Item deleted successfully");
     }
 
   } catch(err) {
-    res.status(500).send("Internal Server Error")
-    console.log(err)
+    if(err.errno === 1452) {
+      res.status(422).send("Failed to process. Foreign key constraint violation.");
+    } else {
+      res.sendStatus(500);
+      console.log(err)
+    }
   }
 }
 
-const modifyBook = async(id, entry, res) => {
-  let field = Object.keys(entry)[0];
+const modifyBook = async(bookId, fieldsToModify, res) => {
 
-  /* converts entry to string if not a number to avoid data type 
-   error when updating fields in db */
-  let newEntry = typeof entry[field] === "number" ?  entry[field] : `"${entry[field].toString()}"`
-  console.log(entry[field].toString())
   try{
     let results = await connection.promise().query(
-    `UPDATE books SET ${field} = ${newEntry} WHERE book_id="${id}";`)
+    `UPDATE books SET ${formatFields("books", fieldsToModify, " , ")}  WHERE book_id="${bookId}";`)
 
-    if (results[0].affectedRows) {
-      res.status(200).send("Item successfully modified.");
+    if (!results[0].affectedRows) {
+      res.status(404).send("Request failed. 0 resource matched.");
     } else {
-      res.status(404).send("No item modified. 0 resources matched");
+      res.status(200).send("Item successfully modified.");
     }
   } catch(err) {
-    res.status(500).send("Internal Server Error")
+    res.sendStatus(500);
     console.log(err)
   }
+
 }
 
 
-module.exports = { getBooks, filterBooks, addBook, deleteBook, modifyBook };
+module.exports = { getBooks, filterBooks, getBookById, addBook, deleteBook, modifyBook };
