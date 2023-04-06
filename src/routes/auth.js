@@ -12,7 +12,7 @@ router.post("/login", async(req, res) => {
       `SELECT password FROM users WHERE username = "${username}";`
     );
 
-    if(results[0].length === 0){
+    if(!results[0].length){
       res.status(404).send("No user with such credentials found.")
     } else {
       let match = await bcrypt.compare(password, results[0][0].password)
@@ -33,16 +33,21 @@ router.post("/login", async(req, res) => {
 
 });
 
-router.post("/verify", (req, res) => {
+router.post("/verify", async(req, res) => {
   let token = req.headers["x-access-token"]
+
   if(!token) {
-    res.status(401).send("No token sent")
+    res.status(404).send("No token sent")
   } else {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, response) => {
       if(response) {
         res.status(200).send("Token Verified");
       } else if (err.name === "JsonWebTokenError") {
-        res.status(500).send("Internal Server Error")
+        if(err.message === "secret or public key must be provided"){
+          res.status(500).send("Failed Verification. Error in Server.") 
+        } else {
+          res.status(401).send(err.name)
+        }
       } else {
         res.status(401).send("Token Denied")
       }

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { getBooks,
         filterBooks,
+        getBookById,
         addBook,
         deleteBook, 
         modifyBook } = require("../controllers/books");
@@ -21,7 +22,7 @@ router.get("/", (req, res) => {
 
 // get a book by its id
 router.get("/:id", (req, res) => {
-
+  getBookById(req.params.id, res)
 });
 
 // add a book
