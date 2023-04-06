@@ -21,25 +21,20 @@ app.use(express.json());
 connectDb();
 
 //routes 
-
-app.get("/", (req, res) => {
-  res.send("Booked main route.");
-});
-
-// for getting books
 app.use("/library/books", isUserAuthenticated, books);
 
-//the categories route
 app.use("/library/categories",isUserAuthenticated, categories);
 
-// the reviews route
 app.use("/library/reviews",isUserAuthenticated, reviews);
 
-// status route
 app.use("/library/status",isUserAuthenticated, status);
 
 // for authentication of user
 app.use("/auth", auth);
+
+app.get("*", (req, res) => {
+  res.status(404).send("No route was found matching the url.");
+});
 
 app.listen(8000, () => {
   console.log("Howdy from port 8000!");
