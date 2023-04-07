@@ -4,7 +4,7 @@ const connection = mysql.createConnection({
   host     : 'localhost',
   port     : 3300,
   user     : 'root',
-  password : '@adminDeveloper',
+  password : process.env.DB_PASSWORD,
   database : 'booked_db',
   multipleStatements: true
 });
