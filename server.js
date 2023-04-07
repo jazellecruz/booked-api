@@ -36,6 +36,6 @@ app.get("*", (req, res) => {
   res.status(404).send("No route was found matching the url.");
 });
 
-app.listen(8000, () => {
-  console.log("Howdy from port 8000!");
+app.listen(80, () => {
+  console.log("🤠 Howdy from port 80!");
 });
