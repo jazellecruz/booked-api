@@ -11,7 +11,7 @@ const status = require("./src/routes/status");
 const { isUserAuthenticated } = require("./src/middleware/auth")
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "https://booked-five.vercel.app",
   method: "GET,POST,DELETE,PATCH,OPTIONS",
 }));
 
