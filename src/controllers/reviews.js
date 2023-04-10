@@ -67,7 +67,7 @@ const deleteReview = async(reviewId, res) => {
     }
 
   } catch(err){
-    if (err.errno === 1452){
+    if (err.errno === 1452){ 
       res.status(422).send("Failed to process. Foreign key constraint violation.");
     } else {
       res.sendStatus(500);
