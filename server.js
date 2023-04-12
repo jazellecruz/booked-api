@@ -14,7 +14,7 @@ app.options('*', cors());
 app.use(cors({
   origin: ["https://booked-five.vercel.app/*"],
   method: "GET,POST,DELETE,PATCH,OPTIONS,HEAD",
-  allowedHeaders: "Origin,Content-Type,Authorization,application/json,X-Requested-With,Accept,X-Api-Key,X-Auth-Token",
+  allowedHeaders: "Origin,Content-Type,Authorization,application/json,X-Requested-With,Accept,X-Api-Key,x-access-token",
   credentials: true
 }));
 
