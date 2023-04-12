@@ -10,6 +10,7 @@ const reviews = require("./src/routes/reviews");
 const status = require("./src/routes/status");
 const { isUserAuthenticated } = require("./src/middleware/auth")
 
+app.options('*', cors());
 app.use(cors({
   origin: ["https://booked-five.vercel.app/*"],
   method: "GET,POST,DELETE,PATCH,OPTIONS,HEAD",
