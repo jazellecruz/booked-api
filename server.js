@@ -14,7 +14,7 @@ const { isUserAuthenticated } = require("./src/middleware/auth")
 app.use(cors({
   origin: ["https://booked-five.vercel.app", "http://localhost:3000"],
   method: ["get","post","delete","patch","options"],
-  allowedHeaders: ["Content-Type","Authorization","application/json","X-Requested-With","Accept","X-Api-Key","x-access-token"],
+  allowedHeaders: ["Content-Type","Authorization","application/json","X-Requested-With","Accept","X-Api-Key","x-access-token", "XMLHttpRequest"],
   credentials: true
 }));
 
