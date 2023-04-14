@@ -10,11 +10,10 @@ const reviews = require("./src/routes/reviews");
 const status = require("./src/routes/status");
 const { isUserAuthenticated } = require("./src/middleware/auth")
 
-
 app.use(cors({
   origin: ["https://booked-five.vercel.app", "http://localhost:3000"],
   method: ["get","post","delete","patch","options"],
-  allowedHeaders: ["Content-Type","Authorization","application/json","X-Requested-With","Accept","X-Api-Key","x-access-token", "XMLHttpRequest"],
+  allowedHeaders: ["Content-Type","Authorization","X-Requested-With","x-access-token", "Accept"],
   credentials: true
 }));
 
@@ -39,6 +38,6 @@ app.get("*", (req, res) => {
   res.status(404).send("No route was found matching the url.");
 });
 
-app.listen(80, () => {
-  console.log("🤠 Howdy from port 80!");
+app.listen(8000, () => {
+  console.log("🤠 Howdy from port 8000!");
 });
