@@ -11,10 +11,10 @@ const getBooks = async(res) => {
        left JOIN reviews ON books.review_id = reviews.review_id
        left JOIN status ON books.status_id = status.status_id
        ORDER BY dateAdded DESC;
-       SELECT COUNT(*) FROM books WHERE status_id = 1;
+       SELECT COUNT(*) FROM books WHERE books.status_id = 1;
        COMMIT;`
        );
-      
+      console.log(results[0])
       if(!results[0].length) {
         res.status(404).send("No resources found.");
       } else {

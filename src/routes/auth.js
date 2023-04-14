@@ -6,7 +6,7 @@ const { generateAccessToken } = require("../utils/utils")
 
 router.post("/login", async(req, res) => {
   const {username, password} = req.body;
-
+ 
   try{
     let results = await connection.promise().query(
       `SELECT password FROM users WHERE username = "${username}";`
